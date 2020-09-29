@@ -18,14 +18,27 @@ def background (a_size, b_size):
     rect(screen, (150, 100, 225), (0, b_size // 10, a_size, b_size // 20))
     rect(screen, (50, 0, 150), (0, 0, a_size, b_size // 10))
 
-def seagull (x, y, r):
-    x_center_wing_1 = x - r // 2
-    x_center_wing_2 = x + r // 2
-    y_center_wings = y + int (r * ((3**0.5) / 2))
-    arc(screen, (255, 255, 255), (x_center_wing_1 - r, y_center_wings - r, r * 2, r * 2), m.pi / 3, 2 * m.pi / 3, 2)
-    arc(screen, (255, 255, 255), (x_center_wing_2 - r, y_center_wings - r, r * 2, r * 2), m.pi / 3, 2 * m.pi / 3, 2)
+def seagull_position_color (y):
+    if y < y_size // 10:
+        return (50, 0, 150)
+    if y > y_size // 10 and y < y_size // 10 + y_size // 20:
+        return (150, 100, 225)
+    if y > y_size // 10 + y_size // 20 and y < y_size // 5 + y_size // 20:
+        return (200, 100, 225)
+    if y > y_size // 5 + y_size // 20 and y < 2 * y_size // 5:
+        return (255, 100, 150)
+    if y > y_size // 2 - y_size // 10:
+        return (255, 150, 100)
 
-
+def seagull (x, y, r, angle):
+    surf = pygame.Surface((2 * r, int (r * (1 - 3 ** 0.5 / 2))))
+    surf.fill(seagull_position_color (y))
+    surf.set_alpha(255)
+    arc(surf, (255, 255, 255), (- r // 2, 0, r * 2, r * 2), m.pi / 3, 2 * m.pi / 3, 2)
+    arc(surf, (255, 255, 255), (r // 2, 0, r * 2, r * 2), m.pi / 3, 2 * m.pi / 3, 2)
+    surf = pygame.transform.rotate(surf, angle)
+    screen.blit(surf, (x - r, y - int (r * (1 - 3 ** 0.5 / 2))))
+    
 def fish (x, y, size):
 
     polygon(screen, (200, 100, 50),[(x - size // 3, y - size // 3), (x + size // 5, y - size // 3), (x, y)], 0)
@@ -185,9 +198,9 @@ def big_bird (x, y, size):
     
 background(x_size, y_size)
 fish (x_size // 2, y_size - y_size // 12, 70)
-seagull (x_size // 4, y_size // 2 - 2 * y_size // 10, 70)
-seagull (2 * x_size // 3, y_size // 4 - y_size // 20, 70)
-seagull (x_size // 4, y_size // 20, 70)
+seagull (x_size // 4, y_size // 2 - y_size // 5, 70, -15)
+seagull (2 * x_size // 3, y_size // 4 - y_size // 15, 70, 0)
+seagull (x_size // 4, y_size // 30, 70, 15)
 big_bird (x_size // 4 + x_size // 8, y_size // 2 + y_size // 5, 150)
 
 FPS = 30

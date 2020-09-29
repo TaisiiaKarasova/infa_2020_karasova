@@ -19,12 +19,26 @@ def background (a_size, b_size):
     rect(screen, (150, 100, 225), (0, b_size // 10, a_size, b_size // 20))
     rect(screen, (50, 0, 150), (0, 0, a_size, b_size // 10))
 
-def seagull (x, y, r):
-    x_center_wing_1 = x - r // 2
-    x_center_wing_2 = x + r // 2
-    y_center_wings = y + int (r * ((3**0.5) / 2))
-    arc(screen, (255, 255, 255), (x_center_wing_1 - r, y_center_wings - r, r * 2, r * 2), m.pi / 3, 2 * m.pi / 3, 2)
-    arc(screen, (255, 255, 255), (x_center_wing_2 - r, y_center_wings - r, r * 2, r * 2), m.pi / 3, 2 * m.pi / 3, 2)
+def seagull_position_color (y):
+    if y < y_size // 10:
+        return (50, 0, 150)
+    if y > y_size // 10 and y < y_size // 10 + y_size // 20:
+        return (150, 100, 225)
+    if y > y_size // 10 + y_size // 20 and y < y_size // 5 + y_size // 20:
+        return (200, 100, 225)
+    if y > y_size // 5 + y_size // 20 and y < 2 * y_size // 5:
+        return (255, 100, 150)
+    if y > y_size // 2 - y_size // 10:
+        return (255, 150, 100)
+
+def seagull (x, y, r, angle):
+    surf = pygame.Surface((2 * r, int (r * (1 - 3 ** 0.5 / 2))))
+    surf.fill(seagull_position_color (y))
+    surf.set_alpha(180)
+    arc(surf, (255, 255, 255), (- r // 2, 0, r * 2, r * 2), m.pi / 3, 2 * m.pi / 3, 2)
+    arc(surf, (255, 255, 255), (r // 2, 0, r * 2, r * 2), m.pi / 3, 2 * m.pi / 3, 2)
+    surf = pygame.transform.rotate(surf, angle)
+    screen.blit(surf, (x - r, y - int (r * (1 - 3 ** 0.5 / 2))))
 
 
 def fish (x, y, size):
@@ -236,27 +250,49 @@ fish (x_size // 6, y_size - y_size // 12, fish_size)
 fish (5 * x_size // 6, y_size - y_size // 5, fish_size)
 
 seagull_size_big = (x_size * y_size) // 4600
-seagull_size_medium = seagull_size_big // 2
+seagull_size_medium = 2 * seagull_size_big // 3
 seagull_size_small = seagull_size_medium // 2
 
-seagull (x_size // 6, y_size // 2 - 2 * y_size // 10, seagull_size_big)
-seagull (2 * x_size // 3, y_size // 4 - y_size // 20, seagull_size_big)
-seagull (x_size // 4, y_size // 20, seagull_size_big)
+seagull (x_size // 6, y_size // 2 - y_size // 5, seagull_size_big, -15)
+seagull (2 * x_size // 3, y_size // 4 - y_size // 15, seagull_size_big, 0)
+seagull (x_size // 4, y_size // 30, seagull_size_big, 15)
 
-for i in range (4):
-    a = r.randint (x_size // 2, x_size // 2 + x_size // 4)
-    b = r.randint (y_size // 20, y_size // 20 + y_size // 10)
-    seagull (a, b, seagull_size_small)
 
-for i in range (8):
-    a = r.randint (x_size // 2 - x_size // 4, x_size // 2)
-    b = r.randint (y_size // 2 - 3 * y_size // 10, y_size // 2 - y_size // 10)
-    seagull (a, b, seagull_size_small)
+a = r.randint (x_size // 2, x_size // 2 + x_size // 8)
+b = r.randint (y_size // 20 + y_size // 40, y_size // 10 - y_size // 40)
+seagull (a, b, seagull_size_small, - 15)
+
+a = r.randint (x_size // 2 + x_size // 8, x_size // 2 + x_size // 4)
+b = r.randint (y_size // 20 + y_size // 40, y_size // 10 - y_size // 40)
+seagull (a, b, seagull_size_small, - 15)
+
+a = r.randint (x_size // 2, x_size // 2 + x_size // 8)
+b = r.randint (y_size // 10 + y_size // 40, y_size // 20 + y_size // 10 - y_size // 40)
+seagull (a, b, seagull_size_small, - 15)
+
+a = r.randint (x_size // 2 + x_size // 8, x_size // 2 + x_size // 4)
+b = r.randint (y_size // 10 + y_size // 40, y_size // 20 + y_size // 10 - y_size // 40)
+seagull (a, b, seagull_size_small, - 15)
+
+for i in range (3):
+    a = r.randint (x_size // 2 - x_size // 6, x_size // 2 + x_size // 4)
+    b = r.randint (y_size // 2 - y_size // 5 + y_size // 40, y_size // 2 - y_size // 10 - y_size // 40)
+    seagull (a, b, seagull_size_small, 0)
+
+for i in range (3):
+    a = r.randint (x_size // 2 - x_size // 3, x_size // 2 + x_size // 5)
+    b = r.randint (y_size // 2 - y_size // 4 + y_size // 40, y_size // 2 - y_size // 5 - y_size // 40)
+    seagull (a, b, seagull_size_small, 15)
+    
+for i in range (2):
+    a = r.randint (x_size // 2 - x_size // 3, x_size // 2 + x_size // 5)
+    b = r.randint (y_size // 5 + y_size // 40, y_size // 2 - y_size // 4 - y_size // 40)
+    seagull (a, b, seagull_size_small, 15)
 
 for i in range (4):
     a = r.randint (x_size // 2 + x_size // 6, x_size - seagull_size_medium)
     b = r.randint (y_size // 2 - 3 * y_size // 10, y_size // 2 - y_size // 10)
-    seagull (a, b, seagull_size_medium)
+    seagull (a, b, seagull_size_medium, 0)
 
 big_bird (x_size // 4, y_size // 2 + y_size // 4, (x_size * y_size) // 2700, 'right')
 big_bird (x_size // 2, y_size // 2 + y_size // 15, (x_size * y_size) // 6500, 'right')
