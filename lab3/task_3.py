@@ -208,20 +208,25 @@ def big_bird (x, y, size, right_or_left):
     else:
         line(screen, (255, 255, 255), (x_calf_left, y_calf), (x_calf_left - calf_size, y_calf + calf_size), thigh_size // 6)
         line(screen, (255, 255, 255), (x_calf_right, y_calf), (x_calf_right - calf_size, y_calf + calf_size), thigh_size // 6)
-        
+
+    
     line(screen, (255, 255, 0), (x_claws_right, y_claws), (x_upper_and_lower_claws_right, y_upper_claw), 2)
-    line(screen, (255, 255, 0), (x_claws_right, y_claws), (x_claws_right + claw_length, y_claws), 2)
     line(screen, (255, 255, 0), (x_claws_right, y_claws), (x_upper_and_lower_claws_right, y_lower_claw), 2)
     line(screen, (255, 255, 0), (x_claws_right, y_claws), (x_claws_right, y_claws + claw_length), 2)
+    if right_or_left == 'right':
+        line(screen, (255, 255, 0), (x_claws_right, y_claws), (x_claws_right + claw_length, y_claws), 2)
+    else:
+        line(screen, (255, 255, 0), (x_claws_right, y_claws), (x_claws_right - claw_length, y_claws), 2)
 
     line(screen, (255, 255, 0), (x_claws_left, y_claws), (x_upper_and_lower_claws_left, y_upper_claw), 2)
-    line(screen, (255, 255, 0), (x_claws_left, y_claws), (x_claws_left + claw_length, y_claws), 2)
     line(screen, (255, 255, 0), (x_claws_left, y_claws), (x_upper_and_lower_claws_left, y_lower_claw), 2)
     line(screen, (255, 255, 0), (x_claws_left, y_claws), (x_claws_left, y_claws + claw_length), 2)
-
-    
-    
-    
+    if right_or_left == 'right':
+        line(screen, (255, 255, 0), (x_claws_left, y_claws), (x_claws_left + claw_length, y_claws), 2)
+    else:
+        line(screen, (255, 255, 0), (x_claws_left, y_claws), (x_claws_left - claw_length, y_claws), 2)
+        
+        
     
 background(x_size, y_size)
 
