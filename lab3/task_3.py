@@ -32,9 +32,9 @@ def seagull_position_color (y):
         return (255, 150, 100)
 
 def seagull (x, y, r, angle):
-    surf = pygame.Surface((2 * r, int (r * (1 - 3 ** 0.5 / 2))))
+    surf = pygame.Surface((2 * r, int (r * (1 - 3 ** 0.5 / 2))), pygame.SRCALPHA)
     surf.fill(seagull_position_color (y))
-    surf.set_alpha(180)
+    surf.set_alpha(0)
     arc(surf, (255, 255, 255), (- r // 2, 0, r * 2, r * 2), m.pi / 3, 2 * m.pi / 3, 2)
     arc(surf, (255, 255, 255), (r // 2, 0, r * 2, r * 2), m.pi / 3, 2 * m.pi / 3, 2)
     surf = pygame.transform.rotate(surf, angle)
