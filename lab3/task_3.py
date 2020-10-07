@@ -12,6 +12,7 @@ screen = pygame.display.set_mode((x_size, y_size))
 screen.fill((225, 225, 225))
 
 def background (a_size, b_size):
+    ''' draws the sky and the sea '''
     rect(screen, (0, 70, 100), (0, b_size // 2, a_size, b_size))
     rect(screen, (255, 150, 100), (0, b_size // 2 - b_size // 10, a_size, b_size // 10))
     rect(screen, (255, 100, 150), (0, b_size // 2 - 2 *  b_size // 10 - b_size // 20, a_size, b_size // 10 + b_size // 20))
@@ -19,21 +20,9 @@ def background (a_size, b_size):
     rect(screen, (150, 100, 225), (0, b_size // 10, a_size, b_size // 20))
     rect(screen, (50, 0, 150), (0, 0, a_size, b_size // 10))
 
-def seagull_position_color (y):
-    if y < y_size // 10:
-        return (50, 0, 150)
-    if y > y_size // 10 and y < y_size // 10 + y_size // 20:
-        return (150, 100, 225)
-    if y > y_size // 10 + y_size // 20 and y < y_size // 5 + y_size // 20:
-        return (200, 100, 225)
-    if y > y_size // 5 + y_size // 20 and y < 2 * y_size // 5:
-        return (255, 100, 150)
-    if y > y_size // 2 - y_size // 10:
-        return (255, 150, 100)
-
 def seagull (x, y, r, angle):
+    ''' draws a seagull in the sky '''
     surf = pygame.Surface((2 * r, int (r * (1 - 3 ** 0.5 / 2))), pygame.SRCALPHA)
-    surf.fill(seagull_position_color (y))
     surf.set_alpha(0)
     arc(surf, (255, 255, 255), (- r // 2, 0, r * 2, r * 2), m.pi / 3, 2 * m.pi / 3, 2)
     arc(surf, (255, 255, 255), (r // 2, 0, r * 2, r * 2), m.pi / 3, 2 * m.pi / 3, 2)
@@ -42,12 +31,15 @@ def seagull (x, y, r, angle):
 
 
 def fish (x, y, size):
-
+    '''
+        x, y - position of the center of the fish body
+        size - major axis of the fish body
+    '''
+    
     polygon(screen, (200, 100, 50),[(x - size // 3, y - size // 3), (x + size // 5, y - size // 3), (x, y)], 0)
     aalines(screen, (0, 0, 0), True,
             [(x - size // 3, y - size // 3), (x + size // 5, y - size // 3), (x, y)])
     
-
     polygon(screen,
             (200, 100, 50),
             [(x, y), (x - 3 * size // 8, y + size // 4), (x - size // 2 - size // 8, y + size // 4)],
@@ -55,26 +47,28 @@ def fish (x, y, size):
     aalines(screen, (0, 0, 0), True,
             [(x, y), (x - 3 * size // 8, y + size // 4), (x - size // 2 - size // 8, y + size // 4)])
    
-
     polygon(screen, (200, 100, 50), [(x - size // 8, y), (x, y + size // 3), (x + size // 2, y + size // 3)], 0)
     aalines(screen, (0, 0, 0), True,
             [(x - size // 8, y), (x, y + size // 3), (x + size // 2, y + size // 3)])
-    
 
+    
     ellipse(screen, (0, 100, 100), (x - size // 2, y - size // 4, size, size // 2))
     ellipse(screen, (0, 0, 0), (x - size // 2, y - size // 4, size, size // 2), 1)
+
+    
     x01 = x + size // 4
     x02 = x - size // 4
     y01 = y + size // 5
     y02 = y - size // 5
+
     polygon(screen, (0, 100, 100),[(x01, y01), (x + 3 * size // 4, y), (x01, y02)], 0)
     line(screen, (0, 0, 0), (x01, y01), (x + 3 * size // 4, y), 1)
     line(screen, (0, 0, 0), (x01, y02), (x + 3 * size // 4, y), 1)
-
+    
     polygon(screen, (0, 100, 100),[(x02, y01), (x - 3 * size // 4, y), (x02, y02)], 0)
     line(screen, (0, 0, 0), (x02, y01), (x - 3 * size // 4, y), 1)
     line(screen, (0, 0, 0), (x02, y02), (x - 3 * size // 4, y), 1)
-
+    
     x_front_tail = x - 3 * size // 4
     tail_width = size // 5
     tail_height = size // 7
@@ -84,23 +78,29 @@ def fish (x, y, size):
             0)
     aalines(screen, (0, 0, 0), True,
             [(x_front_tail, y), (x_front_tail - tail_width, y - tail_height), (x_front_tail - tail_width, y + tail_height)])
-    
+
     r_eye = size // 15
     ellipse(screen, (0, 0, 255), (x + size // 4 - r_eye, y - r_eye, r_eye * 2, r_eye * 2))
     ellipse(screen, (0, 0, 0), (x + size // 4 - r_eye, y - r_eye, r_eye * 2, r_eye * 2), 1)
 
 def big_bird (x, y, size, right_or_left):
+    '''
+        x, y - position of the center of the bird's torso
+        size - major axis of the bird's torso
+        right_or_left - the side of where the bird is looking
+    '''
+
     x_torso = x
     y_torso = y
     torso_size = size
-    
+
     neck_size = torso_size // 2
     y_neck = y_torso - torso_size // 10
     if right_or_left == 'right':
         x_neck = x_torso + torso_size // 2
     else:
         x_neck = x_torso - torso_size // 2
-    
+
     head_size_x = size // 3
     head_size_y = int (2 * head_size_x // 3)
     y_head = y_neck - neck_size // 4
@@ -108,7 +108,7 @@ def big_bird (x, y, size, right_or_left):
         x_head = x_neck + neck_size // 2
     else:
         x_head = x_neck - neck_size // 2
-    
+
     eye_size_x = head_size_x // 5
     eye_size_y = head_size_y // 5
     y_eye = y_head - head_size_y // 6
@@ -116,7 +116,7 @@ def big_bird (x, y, size, right_or_left):
         x_eye = x_head + head_size_x // 4
     else:
         x_eye = x_head - head_size_x // 4
-    
+
     beak_height = head_size_y // 3
     beak_length = head_size_x
     y_beak_upper = y_head - beak_height // 2
@@ -128,17 +128,17 @@ def big_bird (x, y, size, right_or_left):
     else:
         x_beak_right = x_head - head_size_x // 4
         x_beak_left = x_beak_right - beak_length
-    
+
     thigh_size = neck_size
     y_thigh_upper = y_torso
     x_thigh_right = x_torso + torso_size // 6
     x_thigh_left = x_torso - torso_size // 6
-
+    
     calf_size = thigh_size // 4
     x_calf_left = x_thigh_left
     x_calf_right = x_thigh_right
     y_calf = y_thigh_upper + thigh_size - thigh_size // 8
-
+    
     claw_length = calf_size
     y_claws = y_calf + calf_size
     y_upper_claw = y_claws - claw_length // 2
@@ -188,6 +188,7 @@ def big_bird (x, y, size, right_or_left):
         x_wing_back_middle = x_wing_back_lower + torso_size // 4
         x_wing_back_upper = x_wing_back_middle + 3 * torso_size // 4
 
+        
     polygon(screen, (255, 255, 255),
             [(x_tail_front, y_tail_front), (x_tail_middle, y_tail_middle), (x_tail_back, y_tail_back)])
     aalines(screen, (0, 0, 0), True,
