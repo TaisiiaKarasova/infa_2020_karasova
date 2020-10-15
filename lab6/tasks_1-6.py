@@ -319,9 +319,14 @@ elif best_score != 'BEST SCORES' and points > int(best_score):
                     out.write(string)
                     out.close()
 else:
-    show_game_over_screen (display_width, display_height)
-    pygame.display.update()
+    finished = False
+    while not finished:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                finished = True
+        show_game_over_screen (display_width, display_height)
+        pygame.display.update()
     
     
-
+pygame.quit()
 
