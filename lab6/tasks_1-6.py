@@ -272,7 +272,7 @@ while not finished and time_left > 0:
                 points = hitting_the_targets(event, points)
         if finished == True:
             break
-         if time_left <= 0:
+        if time_left <= 0:
             break
         draw_logos()
         print_number_up_right_corner (points)
