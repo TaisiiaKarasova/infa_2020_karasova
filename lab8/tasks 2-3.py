@@ -3,14 +3,14 @@ import tkinter as tk
 import math
 import time
 
+screen_height = 900
+screen_width = 1440
+SIZE = (screen_width, screen_height)
 root = tk.Tk()
 fr = tk.Frame(root)
-root.geometry('800x600')
+root.geometry(str(SIZE[0])+'x'+str(SIZE[1]))
 canv = tk.Canvas(root, bg='white')
 canv.pack(fill=tk.BOTH, expand=1)
-
-screen_height = 600
-screen_width = 800
 
 shell_radius = 10
 shell_longevity = 100
@@ -306,4 +306,3 @@ def new_game(event=''):
 
 new_game()
 
-root.mainloop()
