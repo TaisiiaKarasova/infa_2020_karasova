@@ -14,14 +14,14 @@ canv.pack(fill=tk.BOTH, expand=1)
 
 shell_radius = 10
 shell_longevity = 30
-bomb_longevity = shell_longevity
 bomb_radius = 40
 shells = []
 bullets = 0
-weapon_x = 20
-weapon_y = 450
-initial_shell_x = weapon_x
-initial_shell_y = weapon_y
+weapon1_x = 20
+weapon2_x = screen_width - weapon1_x
+weapon1_y = 450
+weapon2_y = weapon1_y
+muzzle_size = 20
 
 class Shell():
     def __init__(self, x = 0, y = 0):
@@ -128,7 +128,6 @@ class Shell():
                 Возвращает True в случае столкновения снаряда и пушки. В противном случае возвращает False.
         """
         dist_object_shell = ((obj.x_lower - self.x) ** 2 + ((obj.y_lower + obj.foundation_size // 2) - self.y) ** 2) ** 0.5
-        print(str(dist_object_shell) + " VS " + str(self.r + obj.foundation_size // 2))
         if dist_object_shell <= self.r + obj.foundation_size // 2:
             return True
         else:
@@ -136,10 +135,11 @@ class Shell():
 
 
 class Gun():
-    def __init__(self, power = 10, readiness = 0, an = 1,
-                 x_lower_edge = 20, y_lower_edge = 450,
-                 x_upper_edge = 50, y_upper_edge = 420,
+    def __init__(self,
+                 x_lower_edge, y_lower_edge,
+                 muzzle_size,
                  foundation_size = 30, foundation_color = 'yellow',
+                 power = 10, readiness = 0, an = 1,
                  alive = True):
         """
             Конструктор класса пушки
@@ -155,8 +155,8 @@ class Gun():
         self.an = an
         self.x_lower = x_lower_edge
         self.y_lower = y_lower_edge
-        self.x_upper = x_upper_edge
-        self.y_upper = y_upper_edge
+        self.x_upper = x_lower_edge + muzzle_size
+        self.y_upper = y_lower_edge - muzzle_size
         self.alive = alive
         self.foundation_size = foundation_size
         self.foundation_color = foundation_color
@@ -187,11 +187,19 @@ class Gun():
         new_shell.r += 5
 
         if event.x - new_shell.x == 0:
-            self.an = 90
+            if event.y <= self.y_lower:
+                    self.an = - math.pi/2
+            else:
+                    self.an = math.pi/2
         else:
-            self.an = math.atan((event.y - new_shell.y) / (event.x - new_shell.x))
-        new_shell.vx = self.power * math.cos(self.an)
-        new_shell.vy = self.power * math.sin(self.an)
+                angle_tan = (event.y - self.y_lower) / (event.x - self.x_lower)
+                if (angle_tan) >= 0:
+                    self.an = math.atan(angle_tan)
+                else:
+                    self.an = math.atan(angle_tan) + math.pi
+                    
+        new_shell.vx = -self.power * math.cos(self.an)
+        new_shell.vy = -self.power * math.sin(self.an)
         shells += [new_shell]
         self.readiness = 0
         self.power = 10
@@ -204,16 +212,21 @@ class Gun():
         """
         if event:
             if event.x - self.x_lower == 0:
-                self.an = 90
+                if event.y < self.y_lower:
+                    self.an = - math.pi/2
+                else:
+                    self.an = math.pi/2
             else:
-                self.an = math.atan((event.y - self.y_lower) / (event.x - self.x_lower))
+                angle_tan = (event.y - self.y_lower) / (event.x - self.x_lower)
+                if (angle_tan) >= 0:
+                    self.an = math.atan(angle_tan)
+                else:
+                    self.an = math.atan(angle_tan) + math.pi
         canv.coords(self.surface_muzzle, self.x_lower, self.y_lower,
-                    self.x_lower + max(self.power, 20) * math.cos(self.an),
-                    self.y_lower + max(self.power, 20) * math.sin(self.an)
+                    self.x_lower - max(self.power, 20) * math.cos(self.an),
+                    self.y_lower - max(self.power, 20) * math.sin(self.an)
                     )
         
-    def game_finish (self):
-        self.alive = False
 
     def power_up(self):
         """
@@ -226,31 +239,55 @@ class Gun():
         else:
             canv.itemconfig(self.surface_muzzle, fill='black')
 
-    def move (self, event = 0, speed = 10):
+    def move_left (self, event = 0, speed = 10):
         """
-            Движение танка с помощью клавиатуры
+            Движение танка влево с помощью стрелки на клавиатуре
         """
         if event:
-            if event.keysym == 'Left':
-                if self.x_lower >= self.foundation_size // 2:
-                    canv.move(self.surface_muzzle, -speed, 0)
-                    canv.move(self.surface_foundation, -speed, 0)
-                    self.x_lower -= speed
-            if event.keysym == 'Right':
-                if self.x_lower <= screen_width - self.foundation_size // 2:
-                    canv.move(self.surface_muzzle, speed, 0)
-                    canv.move(self.surface_foundation, speed, 0)
-                    self.x_lower += speed
-            if event.keysym == 'Down':
-                if self.y_lower >= self.foundation_size // 2:
-                    canv.move(self.surface_muzzle, 0, speed)
-                    canv.move(self.surface_foundation, 0, speed)
-                    self.y_lower += speed
-            if event.keysym == 'Up':
-                if self.y_lower <= screen_height - self.foundation_size // 2:
-                    canv.move(self.surface_muzzle, 0, -speed)
-                    canv.move(self.surface_foundation, 0, -speed)
-                    self.y_lower -= speed
+            if self.x_lower >= self.foundation_size // 2:
+                canv.move(self.surface_muzzle, -speed, 0)
+                canv.move(self.surface_foundation, -speed, 0)
+                self.x_lower -= speed
+
+                    
+    def move_right (self, event = 0, speed = 10):
+        """
+            Движение танка вправо с помощью стрелки на клавиатуре
+        """
+        if event:
+            if self.x_lower <= screen_width - self.foundation_size // 2:
+                canv.move(self.surface_muzzle, speed, 0)
+                canv.move(self.surface_foundation, speed, 0)
+                self.x_lower += speed
+
+                    
+    def move_down (self, event = 0, speed = 10):
+        """
+            Движение танка вниз с помощью стрелки на клавиатуре
+        """
+        if event:
+            if self.y_lower >= self.foundation_size // 2:
+                canv.move(self.surface_muzzle, 0, speed)
+                canv.move(self.surface_foundation, 0, speed)
+                self.y_lower += speed
+
+                    
+    def move_up (self, event = 0, speed = 10):
+        """
+            Движение танка вверх с помощью стрелки на клавиатуре
+        """
+        if event:
+            if self.y_lower <= screen_height - self.foundation_size // 2:
+                canv.move(self.surface_muzzle, 0, -speed)
+                canv.move(self.surface_foundation, 0, -speed)
+                self.y_lower -= speed
+
+
+    
+
+    
+
+    
 
 
 class Bomb():
@@ -356,15 +393,7 @@ class Target():
                     self.r += 1
                     if self.r >= self.initial_r:
                         self.size_change = 'decrease'
-
-
-weapon = Gun()
-shells = []
-points = 0
-bullets = 0
-canv.create_text(40, 10, text = 'points:' + str(points), font = '28')
-canv.create_text(40, 30, text = 'bullets:' + str(bullets), font = '28')
-time_since_beginning = 0
+                        
 
 def print_scores():
     canv.create_rectangle(0, 0, 100, 100,
@@ -372,10 +401,51 @@ def print_scores():
     canv.create_text(40, 10, text = 'bullets:' + str(bullets), font = '28')
     canv.create_text(40, 30, text = 'points:' + str(points), font = '28')
 
-def show_lose_screen():
-    canv.create_rectangle(0, 0, screen_width, screen_height, fill = 'red')
-    canv.create_text(screen_width // 2, screen_height // 2, text = "Never give up =)", font = '100')
 
+def show_end_screen(winner):
+    canv.create_rectangle(0, 0, screen_width, screen_height, fill = 'red')
+    canv.create_text(screen_width // 2, screen_height // 2, text = winner + ' player won!', font = '100')
+
+
+
+
+weapon1 = Gun(weapon1_x, weapon1_y, muzzle_size)
+weapon2 = Gun(weapon2_x, weapon2_y, muzzle_size)
+shells = []
+points = 0
+bullets = 0
+canv.create_text(40, 10, text = 'points:' + str(points), font = '28')
+canv.create_text(40, 30, text = 'bullets:' + str(bullets), font = '28')
+time_since_beginning = 0
+
+def set_buttons_events ():
+    canv.bind('<Button-1>', weapon1.fire2_start)
+    canv.bind('<ButtonRelease-1>', weapon1.fire2_end)
+    
+    canv.bind('<Button-3>', weapon2.fire2_start)
+    canv.bind('<ButtonRelease-3>', weapon2.fire2_end)
+    
+    canv.bind('<Motion>', weapon1.targetting)
+    canv.bind('<B2-Motion>', weapon2.targetting)
+    
+    root.bind('<Up>', weapon1.move_up)
+    root.bind('<Down>', weapon1.move_down)
+    root.bind('<Right>', weapon1.move_right)
+    root.bind('<Left>', weapon1.move_left)
+
+    root.bind('u', weapon2.move_up)
+    root.bind('d', weapon2.move_down)
+    root.bind('r', weapon2.move_right)
+    root.bind('l', weapon2.move_left)
+
+def killed_target (target):
+    global points
+    target.alive = 0
+    target.hit()
+    points += 1
+    print_scores()
+
+    
 def new_game(event = ''):
     global gun, target1, target2, shells, bullets, points
     global time_since_beginning
@@ -385,44 +455,46 @@ def new_game(event = ''):
     target2.new_target()
     shells = []
     time_since_beginning = 0
-    canv.bind('<Button-1>', weapon.fire2_start)
-    canv.bind('<ButtonRelease-1>', weapon.fire2_end)
-    canv.bind('<Motion>', weapon.targetting)
-    root.bind('<Key>', weapon.move)
     bomb_on_screen = False
+    set_buttons_events()
     
     target1.alive = 1
     target2.alive = 1
     z = 0.03
 
-    if weapon.alive:
+    if weapon1.alive and weapon2.alive:
         while target1.alive or target2.alive:
-            if not weapon.alive:
-                show_lose_screen()
+            if not weapon1.alive:
+                show_end_screen('left')
+            elif not weapon2.alive:
+                show_end_screen('right')
             else:
-                weapon_x = weapon.x_lower
                 time_since_beginning += 1
                 for b in shells:
                     b.move()
                     if b.hit_test_target(target1) and target1.alive:
-                        target1.alive = 0
-                        target1.hit()
-                        points += 1
-                        print_scores()
+                        killed_target (target1)
                         
                     if b.hit_test_target(target2) and target2.alive:
-                        target2.alive = 0
-                        target2.hit()
-                        points += 1
-                        print_scores()
+                        killed_target (target2)
+
+                    if b.hit_test_gun(weapon1) and weapon1.alive:
+                        weapon1.alive = False
                         
-                if time_since_beginning % 200 == 0:
-                    bomb_longevity = shell_longevity
+                    if b.hit_test_gun(weapon2) and weapon2.alive:
+                        weapon2.alive = False
+                        
+                if time_since_beginning % 400 == 0:
                     bomb_on_screen = True
-                    kill_bomb = Bomb (weapon_x)
-                    killer_shell = Shell(weapon_x, bomb_radius)
+                    kill_bomb = Bomb (weapon1.x_lower)
+                    killer_shell = Shell(weapon1.x_lower, bomb_radius)
                     killer_shell.vy = 10
-                    
+
+                if (time_since_beginning - 200) % 400 == 0:
+                    bomb_on_screen = True
+                    kill_bomb = Bomb (weapon2.x_lower)
+                    killer_shell = Shell(weapon2.x_lower, bomb_radius)
+                    killer_shell.vy = 5
 
             if bomb_on_screen:
                 if killer_shell.longevity <= 0:
@@ -431,18 +503,22 @@ def new_game(event = ''):
                     canv.delete(kill_bomb.surface)
                 else:
                     killer_shell.move()
-                    if killer_shell.hit_test_gun(weapon):
-                        weapon.alive = False
-                    
+                    if killer_shell.hit_test_gun(weapon1):
+                        weapon1.alive = False
+                    if killer_shell.hit_test_gun(weapon2):
+                        weapon2.alive = False                    
                     
             if target1.alive:
                     target1.move()
             if target2.alive:
                     target2.move()
+                    
             canv.update()
             time.sleep(z)
-            weapon.targetting()
-            weapon.power_up()
+            weapon1.targetting()
+            weapon1.power_up()
+            weapon2.power_up()
+            weapon2.targetting()
                 
         print_scores()
         for shell in shells:
@@ -451,8 +527,10 @@ def new_game(event = ''):
         time.sleep(z)
         root.after(750, new_game)
         
+    elif not weapon2.alive:
+        show_end_screen('right')
     else:
-        show_lose_screen()
+        show_end_screen('left')
 
 
 new_game()
